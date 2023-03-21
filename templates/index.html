@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <title>RSS Feed Reader</title>
+</head>
+
+<body>
+  <h1>RSS Feed Reader</h1>
+
+  <div class="tabs">
+    <button class="tab-button active" onclick="openTab(event, 'predefined')">Feeds predefinidos</button>
+    <button class="tab-button" onclick="openTab(event, 'manual')">Ingresar feed manualmente</button>
+  </div>
+
+  <div id="predefined" class="tab-content">
+    <h2>Fuentes del dia</h2>
+    <!-- ... -->
+    {% for entry in predefined_entries %}
+    <ul>
+      <li class="news-item">
+        {% if entry.image %}
+        <img src="{{ entry.image }}" alt="{{ entry.title }}">
+        {% endif %}
+        <div class="news-content">
+          <a href="{{ entry.link }}">{{ entry.title }}</a>
+          <p>{{ entry.description }}</p>
+          <p><small>Source: {{ entry.source }}</small></p>
+        </div>
+      </li>
+    </ul>
+
+    {% endfor %}
+    <!-- ... -->
+  </div>
+
+  <div id="manual" class="tab-content">
+    <h2>Ingresar feed manualmente</h2>
+    <form method="POST" action="/">
+      <label for="feed_url">RSS Feed URL:</label>
+      <input type="url" id="feed_url" name="feed_url" value="{{ feed_url }}" required>
+      <button type="submit">Cargar feed</button>
+    </form>
+    <!-- ... -->
+    <ul>
+      {% for entry in entries %}
+      <li class="news-item">
+        {% if entry.image %}
+        <img src="{{ entry.image }}" alt="{{ entry.title }}">
+        {% endif %}
+        <div class="news-content">
+          <a href="{{ entry.link }}">{{ entry.title }}</a>
+          <p>{{ entry.description }}</p>
+          <p><small>Source: {{ entry.source }}</small></p>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    <!-- ... -->
+
+  </div>
+
+  <script>
+    function openTab(evt, tabName) {
+      let i, tabcontent, tabbuttons;
+      tabcontent = document.getElementsByClassName("tab-content");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+      }
+      tabbuttons = document.getElementsByClassName("tab-button");
+      for (i = 0; i < tabbuttons.length; i++) {
+        tabbuttons[i].classList.remove("active");
+      }
+
+      document.getElementById(tabName).style.display = "block";
+      evt.currentTarget.classList.add("active");
+
+      // Guardar la última pestaña activa en el almacenamiento local
+      localStorage.setItem('lastTab', tabName);
+    }
+
+    // Leer la última pestaña activa del almacenamiento local y mostrarla
+    document.addEventListener('DOMContentLoaded', function () {
+      let lastTab = localStorage.getItem('lastTab');
+      if (lastTab) {
+        let tabButton = document.querySelector(`.tab-button[onclick="openTab(event, '${lastTab}')"]`);
+        if (tabButton) {
+          tabButton.click();
+        }
+      } else {
+        // Si no hay ninguna pestaña guardada en el almacenamiento local, mostrar la pestaña predeterminada
+        document.querySelector('.tab-button.active').click();
+      }
+    });
+  </script>
+</body>
+
+</html>
